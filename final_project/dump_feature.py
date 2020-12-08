@@ -135,13 +135,37 @@ def get_category_count(s):
     return len(re.findall(r'\[\[(Category|Cat|分类|分類).*?\]\]', s, flags=re.IGNORECASE))
 
 
+citation_regex = (
+    '('
+    + '(Cite|Citation|Cite[ _]study)' # Template:Citation
+    + '|(Cite[ _]arXiv)' # Template:Cite_arXiv
+    + '|(Cite[ _]visual|Cite[ _]AV media|Cite[ _]media|Cite[ _]audio|Cite[ _]video|Cite[ _]film)' # Template:Cite_AV_media
+    + '|(Cite[ _]AV media notes|Cite[ _]music release notes|Cite[ _]album-notes|Cite[ _]DVD notes)' # Template:Cite_AV_media_notes
+    + '|(Book[ _]reference|Book[ _]reference 3|Cite[ _]book en|Cite[ _]book zh|Cite[ _]book/en|Citebook|Cite[ _]article|Cite[ _]manual|Cite[ _]book|来源-书籍|來源-書籍|Cite[ _]work|Ouvrage)' # /Template:Cite_book
+    + '|(Cite[ _]conference)' # Template:Cite_conference
+    + '|(Cite[ _]encyclopedia|Cite[ _]dictionary)' # Template:Cite_encyclopedia
+    + '|(Cite[ _]episode)' # Template:Cite_episode
+    + '|(Cite[ _]interview)' # Template:Cite_interview
+    + '|(Journal[ _]reference|Cite[ _]paper|Cite[ _]journal zh|Cite[ _]journal en|Cite[ _]document|Citejournal|Cite[ _]journal|Cite[ _]journal lua)' # Template:Cite_journal
+    + '|(Cite[ _]magazine)' # Template:Cite_magazine
+    + '|(Cite[ _]mailing list)' # Template:Cite_mailing_list
+    + '|(Cite[ _]map)' # Template:Cite_map
+    + '|(Citenews|News[ _]reference|Cite[ _]news en|Cite[ _]News|Cite[ _]newspaper|来源-新闻|來源-新聞)' # Template:Cite_news
+    + '|(Cite[ _]newsgroup)' # Template:Cite_newsgroup
+    + '|(Cite[ _]podcast)' # Template:Cite_podcast
+    + '|(Cite[ _]press|Cite[ _]press release|Cite[ _]pressrelease|Cite[ _]pr)' # Template:Cite_press_release
+    + '|(Cite[ _]report)' # Template:Cite_report
+    + '|(Cite[ _]serial)' # Template:Cite_serial
+    + '|(Cite[ _]sign)' # Template:Cite_sign
+    + '|(Cite[ _]speech)' # Template:Cite_speech
+    + '|(Cite[ _]techreport)' # Template:Cite_techreport
+    + '|(Cite[ _]thesis)' # Template:Cite_thesis
+    + '|(Web[ _]reference|Cite[ _]web en|Cite[ _]web 2|Cite[ _]web/en|Cite[ _]website|Citeweb|Web[ _]cite|Cite[ _]Web|Lien[ _]web|Cite[ _]blog|Cite[ _]url|Ссылка|来源-网页|來源-網頁|引網|引网|Cite-web)' # Template:Cite_web
+    + ')'
+)
+
 def get_citation_templates_count(s):
-    count = 0
-    citation_list = ['[Cc]ite', '[Cc]itation', '[Cc]ite[ _]study']
-    for x in citation_list:
-        # {{citation needed}} ?
-        count += len(re.findall(f'{{{{{x}.*?}}}}', s))
-    return count
+    return len(re.findall(r'{{\s*' + citation_regex + r'\s*\|', s, flags=re.IGNORECASE))
 
 
 def get_non_citation_templates_count(s):
