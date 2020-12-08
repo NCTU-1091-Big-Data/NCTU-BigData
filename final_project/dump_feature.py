@@ -125,7 +125,8 @@ def get_level3_heading_count(s):
 
 
 def get_category_count(s):
-    return len(re.findall(r'\[\[[Cc]ategory.*?\]\]', s))
+    # CATEGORY, CAT 都有效，命名空間(namespace)別名參見 https://w.wiki/pf2
+    return len(re.findall(r'\[\[(Category|Cat|分类|分類).*?\]\]', s, flags=re.IGNORECASE))
 
 
 def get_citation_templates_count(s):
