@@ -112,6 +112,12 @@ def get_image_count(s):
     return total_image_count
 
 
+def get_file_count(s):
+    # 取得檔案(包括圖片、影片、音訊)數量
+    # 命名空間(namespace)別名參見 https://w.wiki/pf2
+    return len(re.findall(r'\[\[(File|F|Image|图像|圖像|文件|档案|檔案).*?\]\]', s, flags=re.IGNORECASE))
+
+
 def get_wiki_inside_link_count(s):
     return len(re.findall(r'\[\[.*?\]\]', s))
 
