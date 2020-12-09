@@ -127,7 +127,7 @@ def get_level2_heading_count(s):
 
 
 def get_level3_heading_count(s):
-    return len(re.findall('^===[^=]+?===', s, re.M))
+    return len(re.findall('^===.+===', s, re.M))
 
 
 def get_category_count(s):
