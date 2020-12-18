@@ -3,6 +3,8 @@ import csv
 import re
 import numpy as np
 import pandas as pd
+import jieba
+from bleach.sanitizer import Cleaner
 
 maxInt = sys.maxsize
 
@@ -14,14 +16,26 @@ while True:
         maxInt = int(maxInt / 10)
 
 
+jieba.set_dictionary('dict.txt.big.txt')
+cleaner = Cleaner(tags=[], strip=True)
+
+
 def strip_tags(s):
+    s = re.sub(r'\[\[(File|F|Image|图像|圖像|文件|档案|檔案):.*?\]\]\n?', '', s, flags=re.S)
+    s = re.sub(r'\[\[(Category|Cat|分类|分類):.*?\]\]\n?', '', s, flags=re.S)
+    s = re.sub(r'\[\[[^\]|]+?\|([^\]].+?)\]\]', r'\1', s)
+    s = re.sub(r'\[\[([^\]].+?)\]\]', r'\1', s)
+    s = re.sub(r'<ref((?!<ref).)+?</ref>', '', s, flags=re.S)
+    s = re.sub(r'<ref[^>]+?>', '', s, flags=re.S)
+    s = re.sub(r"''+", '', s)
+    s = re.sub(r'==+\s*([^=]+?)\s*==+', r'\1', s)
+    s = cleaner.clean(s)
     n = 1
     while n > 0:
         s, n = re.subn(r'{\|((?!{\|)(?!\|}).)*?\|}\n?', '', s, flags=re.S)
     n = 1
     while n > 0:
         s, n = re.subn(r'{{((?!{{)(?!}}).)*?}}\n?', '', s, flags=re.S)
-    s = re.sub(r'\[\[(Category|Cat|分类|分類):.*?\]\]\n?', '', s, flags=re.S)
     return s
 
 
@@ -198,6 +212,10 @@ def get_non_citation_templates_count(s):
     return len(re.findall(r'{{', s)) - get_citation_templates_count(s)
 
 
+def get_unique_word_count(s):
+    return len(set(jieba.cut(s, cut_all=False)))
+
+
 def get_all_feature(s):
     article_length = get_article_length_in_byte(s)
     lead_section_length = get_lead_section_length_in_byte(s)
@@ -206,7 +224,7 @@ def get_all_feature(s):
         get_header2_reference_count(s), get_refTag_count(s), get_ref_tag_count(s),
         get_wiki_inside_link_count(s), get_citation_templates_count(s), get_non_citation_templates_count(s),
         get_category_count(s), get_image_count(s)/article_length, get_file_count(s)/article_length, get_infobox_check(s),
-        get_level2_heading_count(s), get_level3_heading_count(s), get_unique_website_count(s)
+        get_level2_heading_count(s), get_level3_heading_count(s), get_unique_website_count(s), get_unique_word_count(s)
     ]
 
 
@@ -220,10 +238,11 @@ def main():
         'num_header2_reference', 'num_refTag', 'num_ref_tag',
         'num_page_links', 'num_cite_temp', 'num_non_cite_templates',
         'num_categories', 'num_images_length', 'num_files_length', 'has_infobox',
-        'num_lv2_headings', 'num_lv3_headings', 'website_count',
+        'num_lv2_headings', 'num_lv3_headings', 'website_count', 'word_count',
         'type'
     ])
     for key, value in content_type_dict.items():
+        print(key)
         with open(key, newline='', encoding='utf-8') as csv_file:
             spam_reader = csv.reader(csv_file)
             for row in spam_reader:
