@@ -26,7 +26,10 @@ def strip_tags(s):
 
 
 def get_lead_section(s):
-    return s[:re.search(r'\n==.+?==', s).start()]
+    m = re.search(r'\n==.+?==', s)
+    if m is None:
+        return s
+    return s[:m.start()]
 
 
 def get_lead_section_length_in_byte(s):
