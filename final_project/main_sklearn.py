@@ -13,6 +13,18 @@ from sklearn import metrics
 from sklearn import preprocessing
 
 
+def accuracy_from_confusion_matrix(cm, diff=0):
+    size = len(cm)
+    correct = 0
+    total = 0
+    for i in range(size):
+        for j in range(size):
+            total += cm[i][j]
+            if abs(i - j) <= diff:
+                correct += cm[i][j]
+    return correct / total
+
+
 '''read data'''
 
 #df = pd.read_csv('en_feature_data_800_6cat.csv')
@@ -24,7 +36,7 @@ colume = df.keys()
 x = df.drop(['title','type'],axis=1)
 y = df['type']
 
-col = ['content length','num_header2_reference','num_refTag','num_ref_tag','num_page_links','num_non_cite_templates']
+col = ['content_length','num_header2_reference','num_refTag','num_ref_tag','num_page_links','num_non_cite_templates']
 
 def lg(n):
     if n<0:
@@ -90,6 +102,8 @@ cm = confusion_matrix(y_test, pretest,
 print('===LogisticRegression===')
 print(cm)
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
+print("Accuracy with 1 level error: %.4g" % accuracy_from_confusion_matrix(cm, 1))
+print("Accuracy with 2 level error: %.4g" % accuracy_from_confusion_matrix(cm, 2))
 
 
 '''
@@ -108,6 +122,8 @@ print('===DecisionTreeClassifier===')
 print(cm)
 # 計算精度
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
+print("Accuracy with 1 level error: %.4g" % accuracy_from_confusion_matrix(cm, 1))
+print("Accuracy with 2 level error: %.4g" % accuracy_from_confusion_matrix(cm, 2))
 
 
 '''
@@ -128,6 +144,8 @@ print('===RandomForestClassifier===')
 print(cm)
 # 計算精度
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
+print("Accuracy with 1 level error: %.4g" % accuracy_from_confusion_matrix(cm, 1))
+print("Accuracy with 2 level error: %.4g" % accuracy_from_confusion_matrix(cm, 2))
 
 
 '''
@@ -194,6 +212,8 @@ from sklearn.metrics import plot_confusion_matrix
 plot_confusion_matrix(clf, X_test, y_test)
 
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, y_pred))
+print("Accuracy with 1 level error: %.4g" % accuracy_from_confusion_matrix(cm, 1))
+print("Accuracy with 2 level error: %.4g" % accuracy_from_confusion_matrix(cm, 2))
 
 
 
@@ -211,5 +231,5 @@ cm = confusion_matrix(y_test, y_pred,
 print('===svm===')
 print(cm)
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, y_pred))
-
-
+print("Accuracy with 1 level error: %.4g" % accuracy_from_confusion_matrix(cm, 1))
+print("Accuracy with 2 level error: %.4g" % accuracy_from_confusion_matrix(cm, 2))
