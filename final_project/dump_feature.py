@@ -27,6 +27,10 @@ def strip_tags(s):
     return s
 
 
+def get_lead_section(s):
+    return s[:re.search(r'\n==.+?==', s).start()]
+
+
 def get_article_length_in_byte(s):
     return len(s.encode('utf-8'))
 
