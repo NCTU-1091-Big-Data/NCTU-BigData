@@ -9,26 +9,52 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
+from sklearn import metrics
+from sklearn import preprocessing
 
 
+'''read data'''
+
+#df = pd.read_csv('en_feature_data_800_6cat.csv')
 df = pd.read_csv('all_feature_data.csv')
+#df = pd.read_csv('en_feature_data_800_6cat.csv')
+#df = pd.read_csv('zh_feature_data_799_6cat.csv')
 colume = df.keys()
 
 x = df.drop(['title','type'],axis=1)
 y = df['type']
 
+col = ['content length','num_header2_reference','num_refTag','num_ref_tag','num_page_links','num_non_cite_templates']
 
+def lg(n):
+    if n<0:
+        n = 0
+    return np.log(n+0.0001)
+
+for c in col:
+    x[c] = x[c].apply(lg)
+
+
+# limit 799
+# dftop = df.groupby('type').head(799)
+# x = dftop.drop(['title','type'],axis=1)
+# y = dftop['type']
+
+
+
+''' Liner regression'''
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 labelencoder = LabelEncoder()
 y_label = labelencoder.fit_transform(y)
 
-
-
 X_train, X_test, y_train, y_test = train_test_split(x, y_label, 
                                                     test_size= 0.2,
                                                     random_state= 1)
-
+# zscore
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
 
 reg = LinearRegression().fit(X_train, y_train)
 
@@ -40,21 +66,29 @@ multinomial LogisticRegression
 '''
 from sklearn.linear_model import LogisticRegression
 
-
-
 X_train, X_test, y_train, y_test = train_test_split(x, y, 
                                                     test_size= 0.2,
                                                     random_state= 1)
+
+# Normalizer
+# nor_scaler = preprocessing.Normalizer().fit(X_train)
+# X_train = nor_scaler.transform(X_train)
+# X_test = nor_scaler.transform(X_test)
+
+# zscore
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
 
 reg = LogisticRegression().fit(X_train, y_train)
 
 pretest = reg.predict(X_test)
 
-confusion_matrix(y_test, pretest,
+cm = confusion_matrix(y_test, pretest,
                  labels=["FA", "GA", "B", "C", "Start","Stub"])
 
-from sklearn import metrics
-# 計算精度
+print('===LogisticRegression===')
+print(cm)
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
 
 
@@ -63,10 +97,6 @@ DecisionTreeClassifier
 ''' 
 from sklearn.tree import DecisionTreeClassifier
 
-X_train, X_test, y_train, y_test = train_test_split(x, y, 
-                                                    test_size= 0.2,
-                                                    random_state= 1)
-
 reg = DecisionTreeClassifier().fit(X_train, y_train)
 
 pretest = reg.predict(X_test)
@@ -74,7 +104,8 @@ pretest = reg.predict(X_test)
 confusion_matrix(y_test, pretest,
                  labels=["FA", "GA", "B", "C", "Start","Stub"])
 
-from sklearn import metrics
+print('===DecisionTreeClassifier===')
+print(cm)
 # 計算精度
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
 
@@ -83,17 +114,18 @@ print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
 RandomForestClassifier
 '''
 from sklearn.ensemble import RandomForestClassifier
-X_train, X_test, y_train, y_test = train_test_split(x, y, 
-                                                    test_size= 0.2,
-                                                    random_state= 1)
+# X_train, X_test, y_train, y_test = train_test_split(x, y, 
+#                                                     test_size= 0.2,
+#                                                     random_state= 1)
 
 clf = RandomForestClassifier(max_depth=4, random_state=1).fit(X_train, y_train)
 pretest = clf.predict(X_test)
 
-confusion_matrix(y_test, pretest,
+cm = confusion_matrix(y_test, pretest,
                  labels=["FA", "GA", "B", "C", "Start","Stub"])
 
-from sklearn import metrics
+print('===RandomForestClassifier===')
+print(cm)
 # 計算精度
 print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
 
@@ -145,25 +177,27 @@ clf = XGBClassifier(
 #        silent=0 ,
         # cpu 執行緒數 預設最大
 #        nthread=4,
-    
         #eval_metric= 'auc'
 )
 # 模型 訓練
 clf.fit(X_train,y_train,eval_metric='auc')
 # 預測值
 y_pred=clf.predict(X_test)
-# 真實值 賦值
-y_true= y_test
 
-confusion_matrix(y_test, y_pred,
-                 labels=["FA", "GA", "B", "C", "Start","Stub"])
+cm = confusion_matrix(y_test, y_pred,
+                  labels=["FA", "GA", "B", "C", "Start","Stub"])
+
+print('===xgboost===')
+print(cm)
+
+from sklearn.metrics import plot_confusion_matrix
+plot_confusion_matrix(clf, X_test, y_test)
+
+print("Accuracy : %.4g" % metrics.accuracy_score(y_test, y_pred))
 
 
-from sklearn import metrics
-# 計算精度
-print("Accuracy : %.4g" % metrics.accuracy_score(y_true, y_pred))
 
-
+'''svm'''
 from sklearn import svm
 
 clf = svm.SVC(decision_function_shape='ovr')
@@ -171,9 +205,11 @@ clf.fit(X_train,y_train)
 y_pred=clf.predict(X_test)
 
 
-confusion_matrix(y_test, y_pred,
+cm = confusion_matrix(y_test, y_pred,
                  labels=["FA", "GA", "B", "C", "Start","Stub"])
 
-from sklearn import metrics
-# 計算精度
-print("Accuracy : %.4g" % metrics.accuracy_score(y_test, pretest))
+print('===svm===')
+print(cm)
+print("Accuracy : %.4g" % metrics.accuracy_score(y_test, y_pred))
+
+
