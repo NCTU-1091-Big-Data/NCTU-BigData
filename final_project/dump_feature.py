@@ -195,7 +195,7 @@ def get_citation_templates_count(s):
 
 
 def get_non_citation_templates_count(s):
-    return len(re.findall('{{.*?}}', s)) - get_citation_templates_count(s)
+    return len(re.findall(r'{{', s)) - get_citation_templates_count(s)
 
 
 def get_all_feature(s):
