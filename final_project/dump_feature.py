@@ -203,7 +203,7 @@ def get_all_feature(s):
         get_header2_reference_count(s), get_refTag_count(s), get_ref_tag_count(s),
         get_wiki_inside_link_count(s), get_citation_templates_count(s), get_non_citation_templates_count(s),
         get_category_count(s), get_image_count(s)/article_length, get_file_count(s)/article_length, get_infobox_check(s),
-        get_level2_heading_count(s), get_level3_heading_count(s)
+        get_level2_heading_count(s), get_level3_heading_count(s), get_unique_website_count(s)
     ]
 
 
@@ -217,7 +217,7 @@ def main():
         'num_header2_reference', 'num_refTag', 'num_ref_tag',
         'num_page_links', 'num_cite_temp', 'num_non_cite_templates',
         'num_categories', 'num_images_length', 'num_files_length', 'has_infobox',
-        'num_lv2_headings', 'num_lv3_headings',
+        'num_lv2_headings', 'num_lv3_headings', 'website_count',
         'type'
     ])
     for key, value in content_type_dict.items():
