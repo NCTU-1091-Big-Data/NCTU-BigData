@@ -28,6 +28,11 @@ def strip_tags(s):
 def get_lead_section(s):
     return s[:re.search(r'\n==.+?==', s).start()]
 
+
+def get_lead_section_length_in_byte(s):
+    return len(get_lead_section(s))
+
+
 def get_unique_website_count(s):
     return len(set(re.findall(r'https?://(.+?)/', s)))
 
@@ -191,19 +196,30 @@ def get_non_citation_templates_count(s):
 
 
 def get_all_feature(s):
-    return [get_article_length_in_byte(s), get_header2_reference_count(s), get_refTag_count(s), get_ref_tag_count(s),
-            get_wiki_inside_link_count(s), get_citation_templates_count(s), get_non_citation_templates_count(s),
-            get_category_count(s), get_image_count(s)/len(s), get_infobox_check(s), get_level2_heading_count(s),
-            get_level3_heading_count(s)]
+    article_length = get_article_length_in_byte(s)
+    lead_section_length = get_lead_section_length_in_byte(s)
+    return [
+        article_length, lead_section_length, lead_section_length/article_length,
+        get_header2_reference_count(s), get_refTag_count(s), get_ref_tag_count(s),
+        get_wiki_inside_link_count(s), get_citation_templates_count(s), get_non_citation_templates_count(s),
+        get_category_count(s), get_image_count(s)/article_length, get_file_count(s)/article_length, get_infobox_check(s),
+        get_level2_heading_count(s), get_level3_heading_count(s)
+    ]
 
 
 def main():
     #  '甲级條目.csv': 'A'
     content_type_dict = {'典范條目.csv': 'FA', '優良條目.csv': 'GA', '乙级條目.csv': 'B',
                          '丙级條目.csv': 'C', '初级條目.csv': 'Start', '全部小作品.csv': 'Stub'}
-    df = pd.DataFrame(columns=['title', 'content length', 'num_header2_reference', 'num_refTag', 'num_ref_tag',
-                               'num_page_links', 'num_cite_temp', 'num_non_cite_templates', 'num_categories',
-                               'num_images_length', 'has_infobox', 'num_lv2_headings', 'num_lv3_headings', 'type'])
+    df = pd.DataFrame(columns=[
+        'title',
+        'content_length', 'lead_length', 'lead_length_ratio',
+        'num_header2_reference', 'num_refTag', 'num_ref_tag',
+        'num_page_links', 'num_cite_temp', 'num_non_cite_templates',
+        'num_categories', 'num_images_length', 'num_files_length', 'has_infobox',
+        'num_lv2_headings', 'num_lv3_headings',
+        'type'
+    ])
     for key, value in content_type_dict.items():
         with open(key, newline='', encoding='utf-8') as csv_file:
             spam_reader = csv.reader(csv_file)
