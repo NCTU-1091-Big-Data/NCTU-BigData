@@ -21,9 +21,7 @@ def strip_tags(s):
     n = 1
     while n > 0:
         s, n = re.subn(r'{{((?!{{)(?!}}).)*?}}\n?', '', s, flags=re.S)
-    n = 1
-    while n > 0:
-        s, n = re.subn(r'\[\[(Category|Cat|分类|分類).*?\]\]', '', s, flags=re.S)
+    s = re.sub(r'\[\[(Category|Cat|分类|分類):.*?\]\]\n?', '', s, flags=re.S)
     return s
 
 
@@ -149,7 +147,7 @@ def get_level3_heading_count(s):
 
 def get_category_count(s):
     # CATEGORY, CAT 都有效，命名空間(namespace)別名參見 https://w.wiki/pf2
-    return len(re.findall(r'\[\[(Category|Cat|分类|分類).*?\]\]', s, flags=re.IGNORECASE))
+    return len(re.findall(r'\[\[(Category|Cat|分类|分類):.*?\]\]', s, flags=re.IGNORECASE))
 
 
 citation_regex = (
