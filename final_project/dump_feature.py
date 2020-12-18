@@ -251,8 +251,7 @@ def main():
             for row in spam_reader:
                 if row[0] == 'title':
                     continue
-                for x in re.findall('<!--.*?-->', row[1], re.S):
-                    row[1] = row[1].replace(x, '')
+                row[1] = re.sub('<!--.*?-->', '', row[1], flags=re.S)
                 features = get_all_feature(row[1])
                 features.insert(0, row[0])
                 features.append(value)
