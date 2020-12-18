@@ -14,6 +14,19 @@ while True:
         maxInt = int(maxInt / 10)
 
 
+def strip_tags(s):
+    n = 1
+    while n > 0:
+        s, n = re.subn(r'{\|((?!{\|)(?!\|}).)*?\|}\n?', '', s, flags=re.S)
+    n = 1
+    while n > 0:
+        s, n = re.subn(r'{{((?!{{)(?!}}).)*?}}\n?', '', s, flags=re.S)
+    n = 1
+    while n > 0:
+        s, n = re.subn(r'\[\[(Category|Cat|分类|分類).*?\]\]', '', s, flags=re.S)
+    return s
+
+
 def get_article_length_in_byte(s):
     return len(s.encode('utf-8'))
 
