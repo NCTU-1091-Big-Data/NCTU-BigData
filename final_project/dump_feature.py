@@ -1,6 +1,7 @@
 import sys
 import csv
 import re
+import time
 import numpy as np
 import pandas as pd
 import jieba
@@ -241,10 +242,12 @@ def main():
         'num_lv2_headings', 'num_lv3_headings', 'website_count', 'word_count',
         'type'
     ])
+    start = time.time()
     for key, value in content_type_dict.items():
         print(key)
         with open(key, newline='', encoding='utf-8') as csv_file:
             spam_reader = csv.reader(csv_file)
+            cnt = 0
             for row in spam_reader:
                 if row[0] == 'title':
                     continue
@@ -254,10 +257,10 @@ def main():
                 features.insert(0, row[0])
                 features.append(value)
                 df.loc[len(df)] = features
-                if len(df) > 100:
+                cnt += 1
+                if cnt >= 100:
                     break
-        if len(df) > 100:
-            break
+        print(time.time() - start)
     df.to_csv('sample_feature_data.csv', index=False, encoding='utf-8')
 
 
