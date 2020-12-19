@@ -1,2 +1,4 @@
+__pycache__/
 *.csv
 final_project/dict.txt.big.txt
+final_project/edit_stream_config.py
