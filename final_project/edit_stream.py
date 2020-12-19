@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import time
+import re
 import requests
 import telegram
 from sseclient import SSEClient as EventSource
@@ -59,6 +60,9 @@ for event in EventSource(STREAM_URL):
                 time.sleep(500)
 
         revisions = list(res['query']['pages'].values())[0]['revisions']
+
+        if re.search(r'#(REDIRECT|重定向)', revisions[0]['*']):
+            continue
 
         new_features = get_all_feature(revisions[0]['*'])
         new_level = inference(new_features)[0]
