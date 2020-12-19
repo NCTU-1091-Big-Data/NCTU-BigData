@@ -120,7 +120,7 @@ def get_header2_reference_count(s):
     header_list = re.findall('^==[^=]+==', s, re.M)
     target_index = -1
     for i, header in zip(range(len(header_list)), header_list):
-        if '参考资料' in header or '参考文献' in header:
+        if re.search(r'[参參]考([资資]|文[献獻])|Sources?', header, flags=re.I):
             target_index = i
             break
     if target_index == -1:
@@ -230,9 +230,15 @@ def get_all_feature(s):
 
 
 def main():
-    #  '甲级條目.csv': 'A'
-    content_type_dict = {'典范條目.csv': 'FA', '優良條目.csv': 'GA', '乙级條目.csv': 'B',
-                         '丙级條目.csv': 'C', '初级條目.csv': 'Start', '全部小作品.csv': 'Stub'}
+    idx = 0
+    outname = ['sample_feature_data.csv', 'sample_feature_data_en.csv'][idx]
+    content_type_dict = [
+        {'典范條目.csv': 'FA', '優良條目.csv': 'GA', '乙级條目.csv': 'B',
+         '丙级條目.csv': 'C', '初级條目.csv': 'Start', '全部小作品.csv': 'Stub'},
+        {'Featured articles.csv': 'FA', 'Good articles.csv': 'GA', 'B-Class articles.csv': 'B',
+         'C-Class articles.csv': 'C', 'Start-Class articles.csv': 'Start', 'Stub-Class articles.csv': 'Stub'}
+    ][idx]
+
     df = pd.DataFrame(columns=[
         'title',
         'content_length', 'lead_length', 'lead_length_ratio',
@@ -260,7 +266,7 @@ def main():
                 if cnt >= 100:
                     break
         print(time.time() - start)
-    df.to_csv('sample_feature_data.csv', index=False, encoding='utf-8')
+    df.to_csv(outname, index=False, encoding='utf-8')
 
 
 if __name__ == '__main__':
