@@ -54,7 +54,7 @@ for event in EventSource(STREAM_URL):
             try:
                 res = requests.post(API, data=payload).json()
                 break
-            except requests.exceptions.ConnectionError as e:
+            except Exception as e:
                 print(e)
                 time.sleep(500)
 
