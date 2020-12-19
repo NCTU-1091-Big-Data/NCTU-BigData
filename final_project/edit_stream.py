@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
+import time
 import requests
 import telegram
 from sseclient import SSEClient as EventSource
 from edit_stream_config import TELEGRAM_CHAT_ID, TELEGRAM_TOKEN
+from dump_feature import get_all_feature
+from xgb_inf import inference
 
 bot = telegram.Bot(TELEGRAM_TOKEN)
 
@@ -36,6 +39,7 @@ for event in EventSource(STREAM_URL):
             oldid = change['revision']['new']
         else:
             oldid = change['revision']['old']
+
         payload = {
             'action': 'query',
             'format': 'json',
@@ -46,18 +50,30 @@ for event in EventSource(STREAM_URL):
             'rvstartid': change['revision']['new'],
             'rvendid': oldid
         }
-        res = requests.post(API, data=payload).json()
+        while True:
+            try:
+                res = requests.post(API, data=payload).json()
+                break
+            except requests.exceptions.ConnectionError as e:
+                print(e)
+                time.sleep(500)
+
         revisions = list(res['query']['pages'].values())[0]['revisions']
+
+        new_features = get_all_feature(revisions[0]['*'])
+        new_level = inference(new_features)[0]
 
         print(revisions[0]['revid'], revisions[0]['*'][:100].replace('\n', ' '))
         if change['type'] == 'edit':
             print(revisions[1]['revid'], revisions[1]['*'][:100].replace('\n', ' '))
+            old_features = get_all_feature(revisions[1]['*'])
+            old_level = inference(old_features)[0]
 
         message = ''
         if change['type'] == 'edit':
-            message = '修訂 <a href="https://zh.wikipedia.org/wiki/{0}">{0}</a> <a href="https://zh.wikipedia.org/wiki/Special:diff/{1}">{1}</a>'.format(change['title'], change['revision']['new'])
+            message = '修訂 <a href="https://zh.wikipedia.org/wiki/{0}">{0}</a> <a href="https://zh.wikipedia.org/wiki/Special:diff/{1}">{1}</a> 預測等級：{2}→{3}'.format(change['title'], change['revision']['new'], old_level, new_level)
         elif change['type'] == 'new':
-            message = '新頁面 <a href="https://zh.wikipedia.org/wiki/{0}">{0}</a>'.format(change['title'])
+            message = '新頁面 <a href="https://zh.wikipedia.org/wiki/{0}">{0}</a> 預測等級：{1}'.format(change['title'], new_level)
         print(message)
 
         # print(change)
